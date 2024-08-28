@@ -110,6 +110,7 @@ class MotionPlanning(Drone):
         print("Sending waypoints to simulator ...")
         data = msgpack.dumps(self.waypoints)
         self.connection._master.write(data)
+        
 
     def plan_path(self):
         self.flight_state = States.PLANNING
