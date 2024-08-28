@@ -5,7 +5,7 @@ from enum import Enum, auto
 
 import numpy as np
 
-from planning_utils import a_star, heuristic, create_grid
+from planning_utils import *
 from udacidrone import Drone
 from udacidrone.connection import MavlinkConnection
 from udacidrone.messaging import MsgID
@@ -120,18 +120,25 @@ class MotionPlanning(Drone):
 
         self.target_position[2] = TARGET_ALTITUDE
 
+        obstacle_file = 'colliders.csv'
+
         # TODO: read lat0, lon0 from colliders into floating point values
-        
+        lat0, lon0 = read_global_home(obstacle_file)
+
         # TODO: set home position to (lon0, lat0, 0)
+        print('Set home position from file ', lon0, lat0)
+        self.set_home_position(lon0, lat0, 0)
 
         # TODO: retrieve current global position
- 
+        print('global_position {}'.format(self.global_position))
+        local_home = global_to_local(self.global_position, self.global_home)
+
         # TODO: convert to current local position using global_to_local()
         
         print('global home {0}, position {1}, local position {2}'.format(self.global_home, self.global_position,
                                                                          self.local_position))
         # Read in obstacle map
-        data = np.loadtxt('colliders.csv', delimiter=',', dtype='Float64', skiprows=2)
+        data = np.loadtxt(obstacle_file, delimiter=',', dtype='Float64', skiprows=2)
         
         # Define a grid for a particular altitude and safety margin around obstacles
         grid, north_offset, east_offset = create_grid(data, TARGET_ALTITUDE, SAFETY_DISTANCE)
