@@ -65,6 +65,23 @@ class Action(Enum):
         return (self.value[0], self.value[1])
 
 
+def free_space(grid, current_node):
+    """
+    Returns true if grid(current_node) = 0
+    """
+    n, m = grid.shape[0] - 1, grid.shape[1] - 1
+    x, y = current_node
+    print(x, y, grid[x, y])
+
+    # check if the node is off the grid or
+    # it's an obstacle
+
+    if x - 1 < 0 or x + 1 > n or y - 1 < 0 or y + 1 > m or grid[x, y] == 1:
+        return False    
+    else:
+        return True
+
+
 def valid_actions(grid, current_node):
     """
     Returns a list of valid actions given a grid and current node.
@@ -98,7 +115,11 @@ def a_star(grid, h, start, goal):
 
     branch = {}
     found = False
-    
+
+    if not free_space(grid, goal):
+        print('Goal is occupied. No path.')
+        return path[::-1], path_cost
+
     while not queue.empty():
         item = queue.get()
         current_node = item[1]
@@ -118,9 +139,12 @@ def a_star(grid, h, start, goal):
                 next_node = (current_node[0] + da[0], current_node[1] + da[1])
                 branch_cost = current_cost + action.cost
                 queue_cost = branch_cost + h(next_node, goal)
-                
+                hue = h(next_node, goal)
+                n, m = grid.shape[0] - 1, grid.shape[1] - 1
                 if next_node not in visited:                
-                    visited.add(next_node)               
+                    visited.add(next_node)
+                    if(len(visited) % 100 == 0):
+                        print('new node ', next_node, hue, len(visited), n, m, n*m)
                     branch[next_node] = (branch_cost, current_node, action)
                     queue.put((queue_cost, next_node))
              
@@ -141,7 +165,8 @@ def a_star(grid, h, start, goal):
 
 
 def heuristic(position, goal_position):
-    return np.linalg.norm(np.array(position) - np.array(goal_position))
+    #return np.linalg.norm(np.array(position) - np.array(goal_position))
+    return np.hypot(position[0] - goal_position[0], position[1] - goal_position[1])
 
 
 def read_global_home(fname):
