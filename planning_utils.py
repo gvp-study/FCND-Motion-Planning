@@ -71,7 +71,6 @@ def free_space(grid, current_node):
     """
     n, m = grid.shape[0] - 1, grid.shape[1] - 1
     x, y = current_node
-    print(x, y, grid[x, y])
 
     # check if the node is off the grid or
     # it's an obstacle

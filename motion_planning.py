@@ -130,12 +130,12 @@ class MotionPlanning(Drone):
 
         # TODO: set home position to (lon0, lat0, 0)
         print('Set global home position from file ', lon0, lat0)
-        self.set_home_position(lon0, lat0, 0)
+        self.set_home_position(lon0, lat0, 0.0)
 
         # TODO: retrieve current global position
         print('global current position {}'.format(self.global_position))
-        local_home = global_to_local(self.global_position, self.global_home)
-        print('local_home NED ', local_home)
+        local_home_NED = global_to_local(self.global_position, self.global_home)
+        print('local_home NED ', local_home_NED)
 
         # TODO: convert to current local position using global_to_local()
         
@@ -148,7 +148,7 @@ class MotionPlanning(Drone):
         grid, north_offset, east_offset = create_grid(data, TARGET_ALTITUDE, SAFETY_DISTANCE)
         print("North offset = {0}, east offset = {1}".format(north_offset, east_offset))
         # Define starting point on the grid (this is just grid center)
-        grid_start = (-north_offset, -east_offset)
+        grid_start = (int(-north_offset + local_home_NED[0]), int(-east_offset + local_home_NED[1]))
         # TODO: convert start position to current position rather than map center
 
         plt.imshow(grid, cmap='Greys', origin='lower')
