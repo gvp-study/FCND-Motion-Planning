@@ -42,20 +42,25 @@ def create_grid(data, drone_altitude, safety_distance):
     return grid, int(north_min), int(east_min)
 
 
-# Assume all actions cost the same.
+# Added diagonal moves with sqrt(2.0) cost.
+
 class Action(Enum):
     """
     An action is represented by a 3 element tuple.
-
+    
     The first 2 values are the delta of the action relative
     to the current grid position. The third and final value
     is the cost of performing the action.
     """
-
-    WEST = (0, -1, 1)
-    EAST = (0, 1, 1)
-    NORTH = (-1, 0, 1)
-    SOUTH = (1, 0, 1)
+    
+    WEST =      ( 0, -1, 1)
+    EAST =      ( 0,  1, 1)
+    NORTH =     (-1,  0, 1)
+    SOUTH =     ( 1,  0, 1)
+    SOUTHWEST = ( 1, -1, 1.414)
+    SOUTHEAST = ( 1,  1, 1.414)
+    NORTHWEST = (-1, -1, 1.414)
+    NORTHEAST = (-1,  1, 1.414)
 
     @property
     def cost(self):
@@ -101,9 +106,16 @@ def valid_actions(grid, current_node):
         valid_actions.remove(Action.WEST)
     if y + 1 > m or grid[x, y + 1] == 1:
         valid_actions.remove(Action.EAST)
+    if x - 1 < 0 or y - 1 < 0 or grid[x - 1, y - 1] == 1:
+        valid_actions.remove(Action.NORTHWEST)
+    if x - 1 < 0 or y + 1 > n or grid[x - 1, y + 1] == 1:
+        valid_actions.remove(Action.NORTHEAST)
+    if x + 1 > n or y - 1 < 0 or grid[x + 1, y - 1] == 1:
+        valid_actions.remove(Action.SOUTHWEST)
+    if x + 1 > n or y + 1 > n or grid[x + 1, y + 1] == 1:
+        valid_actions.remove(Action.SOUTHEAST)
 
     return valid_actions
-
 
 def a_star(grid, h, start, goal):
 
@@ -208,12 +220,12 @@ def prune_path_bresenham(grid, path):
         p1 = pruned_path[-1]
         cells = list(bresenham(int(p1[0]), int(p1[1]), 
                                int(p[0]), int(p[1])))
-        hit = False
+        collide = False
         for c in cells:
             if grid[c[0], c[1]] == 1:
-                hit = True
+                collide = True
 
-        if not hit:
+        if not collide:
             no_coll_p = p
         else:
             pruned_path.append((int(no_coll_p[0]), int(no_coll_p[1])))
