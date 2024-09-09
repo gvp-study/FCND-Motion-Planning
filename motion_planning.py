@@ -5,7 +5,7 @@ from enum import Enum, auto
 
 import numpy as np
 import matplotlib.pyplot as plt
-
+import time
 
 from planning_utils import *
 from udacidrone import Drone
@@ -14,6 +14,13 @@ from udacidrone.messaging import MsgID
 from udacidrone.frame_utils import global_to_local, local_to_global
 
 plt.rcParams["figure.figsize"] = [12, 12]
+
+grid_g = []
+grid_goal_g = []
+grid_start_g = []
+grid_path_g = []
+grid_pruned_path_g = []
+grid_tolerance_g = 1.0
 
 class States(Enum):
     MANUAL = auto()
@@ -119,7 +126,7 @@ class MotionPlanning(Drone):
         self.flight_state = States.PLANNING
         print("Searching for a path ...")
         TARGET_ALTITUDE = 5
-        SAFETY_DISTANCE = 1
+        SAFETY_DISTANCE = 5
 
         self.target_position[2] = TARGET_ALTITUDE
 
@@ -134,11 +141,11 @@ class MotionPlanning(Drone):
 
         # TODO: retrieve current global position
         print('global current position {}'.format(self.global_position))
+
+        # TODO: convert to current local position using global_to_local()
         local_home_NED = global_to_local(self.global_position, self.global_home)
         print('local_home NED ', local_home_NED)
 
-        # TODO: convert to current local position using global_to_local()
-        
         print('global home {0}, position {1}, local position {2}'.format(self.global_home, self.global_position,
                                                                          self.local_position))
         # Read in obstacle map
@@ -146,39 +153,41 @@ class MotionPlanning(Drone):
         
         # Define a grid for a particular altitude and safety margin around obstacles
         grid, north_offset, east_offset = create_grid(data, TARGET_ALTITUDE, SAFETY_DISTANCE)
-        print("North offset = {0}, east offset = {1}".format(north_offset, east_offset))
+        print("North offset = {0}, East offset = {1}".format(north_offset, east_offset))
         # Define starting point on the grid (this is just grid center)
         grid_start = (int(-north_offset + local_home_NED[0]), int(-east_offset + local_home_NED[1]))
         # TODO: convert start position to current position rather than map center
 
-        plt.imshow(grid, cmap='Greys', origin='lower')
-        # For the purposes of the visual the east coordinate lay along
-        # the x-axis and the north coordinates long the y-axis.
-#        plt.plot(grid_start[1], grid_start[0], 'x')
-#        plt.plot(grid_goal[1], grid_goal[0], 'x')
-        plt.xlabel('EAST')
-        plt.ylabel('NORTH')
-        plt.show        
 
-
-        #(-122.39746073183844, 37.79249692859191, 10)
         # Set goal as some arbitrary position on the grid
+        goal_lat_lon_alt = (-122.39587286418771, 37.79115734434187, TARGET_ALTITUDE)
+        
 #        goal_lat_lon_alt = (-122.397513, 37.792945, TARGET_ALTITUDE)
 #        goal_lat_lon_alt = (-122.403412, 37.787827, TARGET_ALTITUDE)
-        goal_lat_lon_alt = (-122.39587286418771, 37.79115734434187, TARGET_ALTITUDE)
-
 #        goal_lat_lon_alt = (-122.3983512251831, 37.791733877249264, TARGET_ALTITUDE)
+#        goal_lat_lon_alt = (-122.39761074848352, 37.789761506658834, TARGET_ALTITUDE)
+        goal_lat_lon_alt = (-122.39343735,   37.79051296,    TARGET_ALTITUDE)
+ 
         local_goal = global_to_local(goal_lat_lon_alt, self.global_home)
+        print('local_goal NED 0 ', local_goal, goal_lat_lon_alt)
+#        local_goal = [700+north_offset, 800+east_offset]
+#        local_goal = [100+north_offset, 800+east_offset, -TARGET_ALTITUDE]
         print('local_goal NED ', local_goal, goal_lat_lon_alt)
         local_goal_lla = local_to_global(local_goal, self.global_home)
         print('local goal LLA ', local_goal_lla)
 
-        grid_goal = (-north_offset + 20, -east_offset + 20)
-        print('grid goal ', grid_goal)
+#        grid_goal = (int(-north_offset + local_goal[0]), int(-east_offset + local_goal[1]))
         grid_goal = (int(-north_offset + local_goal[0]), int(-east_offset + local_goal[1]))
         print('grid goal ', grid_goal)
         # TODO: adapt to set goal as latitude / longitude position and convert
 
+        global grid_g
+        global grid_goal_g
+        global grid_start_g
+        global grid_tolerance_g
+        grid_g = grid
+        grid_goal_g = grid_goal
+        grid_start_g = grid_start
 
         # Run A* to find a path from start to goal
         # TODO: add diagonal motions with a cost of sqrt(2) to your A* implementation
@@ -190,8 +199,13 @@ class MotionPlanning(Drone):
 
         # TODO: prune path to minimize number of waypoints
         # TODO (if you're feeling ambitious): Try a different approach altogether!
-        pruned_path = prune_path(path, 10.0)
-
+#        pruned_path = prune_path_collinear(path, grid_tolerance_g)
+        pruned_path = prune_path_bresenham(grid, path)
+        global grid_path_g
+        grid_path_g = path
+        global grid_pruned_path_g
+        grid_pruned_path_g = pruned_path
+        
         # Convert path to waypoints
         waypoints = [[p[0] + north_offset, p[1] + east_offset, TARGET_ALTITUDE, 0] for p in pruned_path]
         # Set self.waypoints
@@ -223,3 +237,21 @@ if __name__ == "__main__":
     time.sleep(1)
 
     drone.start()
+
+    print(grid_g, grid_start_g, grid_goal_g)
+    plt.imshow(grid_g, origin='lower')
+    # For the purposes of the visual the east coordinate lay along
+    # the x-axis and the north coordinates long the y-axis.
+    plt.plot(grid_start_g[1], grid_start_g[0], 'x')
+    plt.plot(grid_goal_g[1], grid_goal_g[0], 'x')
+    p = np.array(grid_path_g)
+    plt.plot(p[:,1], p[:,0], 'r-')
+    pp = np.array(grid_pruned_path_g)
+    plt.plot(pp[:,1], pp[:,0], 'go')
+    plt.xlabel('EAST')
+    plt.ylabel('NORTH')
+#    plt.title('A* path pruned with Collinearity')
+    plt.title('A* path pruned with Bresenham')
+    plt.grid()
+    plt.show()
+

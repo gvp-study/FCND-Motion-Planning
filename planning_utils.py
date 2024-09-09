@@ -1,6 +1,7 @@
 from enum import Enum
 from queue import PriorityQueue
 import numpy as np
+from bresenham import bresenham
 
 
 def create_grid(data, drone_altitude, safety_distance):
@@ -142,8 +143,6 @@ def a_star(grid, h, start, goal):
                 n, m = grid.shape[0] - 1, grid.shape[1] - 1
                 if next_node not in visited:                
                     visited.add(next_node)
-                    if(len(visited) % 100 == 0):
-                        print('new node ', next_node, hue, len(visited), n, m, n*m)
                     branch[next_node] = (branch_cost, current_node, action)
                     queue.put((queue_cost, next_node))
              
@@ -178,7 +177,7 @@ def read_global_home(fname):
         lon = coord.group(2)
     return float(lat), float(lon)
 
-def prune_path(path, epsilon=1e-6):
+def prune_path_collinear(path, epsilon=1e-6):
     
     def point(p):
         return np.array([p[0], p[1], 1.]).reshape(1, -1)
@@ -200,3 +199,29 @@ def prune_path(path, epsilon=1e-6):
         else:
             i += 1
     return pruned_path	
+
+def prune_path_bresenham(grid, path):
+    no_coll_p = path[0]
+    pruned_path = [no_coll_p]
+
+    for p in path[1:]:
+        p1 = pruned_path[-1]
+        cells = list(bresenham(int(p1[0]), int(p1[1]), 
+                               int(p[0]), int(p[1])))
+        hit = False
+        for c in cells:
+            if grid[c[0], c[1]] == 1:
+                hit = True
+
+        if not hit:
+            no_coll_p = p
+        else:
+            pruned_path.append((int(no_coll_p[0]), int(no_coll_p[1])))
+
+    # Append last path point
+    p_last = path[-1]
+    pp_last = pruned_path[-1]
+    if (np.hypot(p_last[0]-pp_last[0], p_last[1]-pp_last[1]) < 1.0):
+        pruned_path.append((int(p_last[0]), int(p_last[1])))
+
+    return pruned_path
