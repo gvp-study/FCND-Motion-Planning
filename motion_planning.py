@@ -15,6 +15,7 @@ from udacidrone.frame_utils import global_to_local, local_to_global
 
 plt.rcParams["figure.figsize"] = [12, 12]
 
+# Global variables needed to plot
 grid_g = []
 grid_goal_g = []
 grid_start_g = []
@@ -145,9 +146,8 @@ class MotionPlanning(Drone):
         # TODO: convert to current local position using global_to_local()
         local_home_NED = global_to_local(self.global_position, self.global_home)
         print('local_home NED ', local_home_NED)
+        print('global home {0}, position {1}, local position {2}'.format(self.global_home, self.global_position, self.local_position))
 
-        print('global home {0}, position {1}, local position {2}'.format(self.global_home, self.global_position,
-                                                                         self.local_position))
         # Read in obstacle map
         data = np.loadtxt(obstacle_file, delimiter=',', dtype='Float64', skiprows=2)
         
@@ -155,31 +155,17 @@ class MotionPlanning(Drone):
         grid, north_offset, east_offset = create_grid(data, TARGET_ALTITUDE, SAFETY_DISTANCE)
         print("North offset = {0}, East offset = {1}".format(north_offset, east_offset))
         # Define starting point on the grid (this is just grid center)
-        grid_start = (int(-north_offset + local_home_NED[0]), int(-east_offset + local_home_NED[1]))
         # TODO: convert start position to current position rather than map center
-
+        grid_start = (int(-north_offset + local_home_NED[0]), int(-east_offset + local_home_NED[1]))
 
         # Set goal as some arbitrary position on the grid
-        goal_lat_lon_alt = (-122.39587286418771, 37.79115734434187, TARGET_ALTITUDE)
-        
-#        goal_lat_lon_alt = (-122.397513, 37.792945, TARGET_ALTITUDE)
-#        goal_lat_lon_alt = (-122.403412, 37.787827, TARGET_ALTITUDE)
-#        goal_lat_lon_alt = (-122.3983512251831, 37.791733877249264, TARGET_ALTITUDE)
-#        goal_lat_lon_alt = (-122.39761074848352, 37.789761506658834, TARGET_ALTITUDE)
+        # TODO: adapt to set goal as latitude / longitude position and convert
         goal_lat_lon_alt = (-122.39343735,   37.79051296,    TARGET_ALTITUDE)
  
         local_goal = global_to_local(goal_lat_lon_alt, self.global_home)
-        print('local_goal NED 0 ', local_goal, goal_lat_lon_alt)
-#        local_goal = [700+north_offset, 800+east_offset]
-#        local_goal = [100+north_offset, 800+east_offset, -TARGET_ALTITUDE]
-        print('local_goal NED ', local_goal, goal_lat_lon_alt)
-        local_goal_lla = local_to_global(local_goal, self.global_home)
-        print('local goal LLA ', local_goal_lla)
 
-#        grid_goal = (int(-north_offset + local_goal[0]), int(-east_offset + local_goal[1]))
         grid_goal = (int(-north_offset + local_goal[0]), int(-east_offset + local_goal[1]))
-        print('grid goal ', grid_goal)
-        # TODO: adapt to set goal as latitude / longitude position and convert
+        print('local_goal NED ', local_goal, goal_lat_lon_alt, ' grid goal ', grid_goal)
 
         global grid_g
         global grid_goal_g
@@ -195,7 +181,6 @@ class MotionPlanning(Drone):
         print('Local Start and Goal: ', grid_start, grid_goal)
         path, path_cost = a_star(grid, heuristic, grid_start, grid_goal)
         print('Path ', path, path_cost)
-
 
         # TODO: prune path to minimize number of waypoints
         # TODO (if you're feeling ambitious): Try a different approach altogether!
@@ -224,7 +209,6 @@ class MotionPlanning(Drone):
         #    pass
 
         self.stop_log()
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
