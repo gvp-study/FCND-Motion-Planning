@@ -1,5 +1,6 @@
 import argparse
 import time
+import math
 import msgpack
 from enum import Enum, auto
 
@@ -180,7 +181,6 @@ class MotionPlanning(Drone):
         # or move to a different search space such as a graph (not done here)
         print('Local Start and Goal: ', grid_start, grid_goal)
         path, path_cost = a_star(grid, heuristic, grid_start, grid_goal)
-        print('Path ', path, path_cost)
 
         # TODO: prune path to minimize number of waypoints
         # TODO (if you're feeling ambitious): Try a different approach altogether!
@@ -193,8 +193,18 @@ class MotionPlanning(Drone):
         
         # Convert path to waypoints
         waypoints = [[p[0] + north_offset, p[1] + east_offset, TARGET_ALTITUDE, 0] for p in pruned_path]
+        ow = waypoints[0]
+        ang_waypoints = []
+        ang_waypoints.append(ow)
+        for i, w in enumerate(waypoints):
+            if(i > 0):
+                ang = math.atan2(w[0]-ow[0], w[1]-ow[1])
+                ang_waypoints.append([w[0], w[1], w[2], ang])
+                ow = w
+
+        print('Waypoints ', ang_waypoints)
         # Set self.waypoints
-        self.waypoints = waypoints
+        self.waypoints = ang_waypoints
         # TODO: send waypoints to sim (this is just for visualization of waypoints)
         self.send_waypoints()
 

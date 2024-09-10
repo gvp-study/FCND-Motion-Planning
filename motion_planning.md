@@ -21,26 +21,13 @@
 ### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
 
 ---
-### Writeup / README
-
-#### 1. Provide a Writeup / README that includes all the rubric points and how you addressed each one.  You can submit your writeup as markdown or pdf.  
-
 Below I describe how I addressed each rubric point and where in my code each point is handled.
 
 ### Explain the Starter Code
 
 #### 1. Explain the functionality of what's provided in `motion_planning.py` and `planning_utils.py`
-These scripts contain a basic planning implementation that includes...
-
 And here's a screenshot of the drone following the planned path through the waypoints from the start to the goal in the environment.
 ![Top Down View](./Docs/drone-path-screenshot.png)
-
-Here's | A | Snappy | Table
---- | --- | --- | ---
-1 | `highlight` | **bold** | 7.41
-2 | a | b | c
-3 | *italic* | text | 403
-4 | 2 | 3 | abcd
 
 ### Implementing Your Path Planning Algorithm
 
@@ -194,7 +181,11 @@ The modified a_start search function was used to compute the path between the lo
 
 #### 6. Cull waypoints 
 
-The raw set of path points obtained from a_star can be pruned into a significantly smaller set of waypoints using collinearity tests on the points.  The prune_path_collinear function takes the path and a tolerance value to eliminate all points which are collinear. The result is shown below.
+The raw set of path points obtained from a_star is a set of connected cells from the start cell to the goal cell. These path points will number in the hundreds and are too fine for a drone to follow. These path points are then pruned such that only the start, end and important waypoints are included.
+
+##### Prune using Collinearity
+
+The path can be pruned into a significantly smaller set of waypoints using collinearity tests on the points.  The prune_path_collinear function takes the path and a tolerance value to eliminate all points which are collinear. The result is shown below.
 
 ```python
 def prune_path_collinear(path, epsilon=1e-6):
@@ -223,9 +214,9 @@ def prune_path_collinear(path, epsilon=1e-6):
 
 ![AStar-Manhattan-Collinear](/Users/gvp/Documents/GitHub/FCND-Motion-Planning/Docs/AStar-Manhattan-Collinear.png)
 
+##### Prune using RayTracing
 
-
-I experimented with another pruning function using ray tracing using the Bresenham algorithm on the same path points. The result was a significant reduction in waypoints from the previous collinearity function. The prune_path_bresenham is shown below and the resulting path with green waypoints is shown below.
+I experimented with another pruning function using ray tracing using the Bresenham algorithm on the same path points. The result was a significant reduction in waypoints from the previous prune_path_collinearity function. The prune_path_bresenham is shown below and the resulting path with green waypoints is shown below.
 
 ```python
 def prune_path_bresenham(grid, path):
@@ -256,9 +247,29 @@ def prune_path_bresenham(grid, path):
 
 ![Example Image](Docs/AStar-Diagonal-RayTrace.png)
 
+The pruned path points still lack the direction which are needed as the yaw angle for each waypoint. I used the atan2 function to compute the desired yaw angle for each waypoint from its previous one as shown below.
+
+```python
+# Convert path to waypoints
+waypoints = [[p[0] + north_offset, p[1] + east_offset, TARGET_ALTITUDE, 0] for p in pruned_path]
+ow = waypoints[0]
+ang_waypoints = []
+ang_waypoints.append(ow)
+for i, w in enumerate(waypoints):
+  if(i > 0):
+    ang = math.atan2(w[0]-ow[0], w[1]-ow[1])
+    ang_waypoints.append([w[0], w[1], w[2], ang])
+    ow = w
+
+    print('Waypoints ', ang_waypoints)
+    # Set self.waypoints
+    self.waypoints = ang_waypoints
+```
+
 ### Execute the flight
+
 #### 1. Does it work?
-The movie of the drone tracking the path is shown below.
+The movie of the drone tracking the computed path is shown below.
 
 <video controls width="600">
   <source src="Docs/astar_diag_raytrace.mp4" type="video/quicktime">
