@@ -16,13 +16,6 @@ from udacidrone.frame_utils import global_to_local, local_to_global
 
 plt.rcParams["figure.figsize"] = [12, 12]
 
-# Global variables needed to plot
-grid_g = []
-grid_goal_g = []
-grid_start_g = []
-grid_path_g = []
-grid_pruned_path_g = []
-grid_tolerance_g = 1.0
 
 class States(Enum):
     MANUAL = auto()
@@ -169,14 +162,6 @@ class MotionPlanning(Drone):
         grid_goal = (int(-north_offset + local_goal_NED[0]), int(-east_offset + local_goal_NED[1]))
         print('local_goal_NED ', local_goal_NED, goal_LLA, ' grid goal ', grid_goal)
 
-        global grid_g
-        global grid_goal_g
-        global grid_start_g
-        global grid_tolerance_g
-        grid_g = grid
-        grid_goal_g = grid_goal
-        grid_start_g = grid_start
-
         # Run A* to find a path from start to goal
         # TODO: add diagonal motions with a cost of sqrt(2) to your A* implementation
         # or move to a different search space such as a graph (not done here)
@@ -187,10 +172,6 @@ class MotionPlanning(Drone):
         # TODO (if you're feeling ambitious): Try a different approach altogether!
 #        pruned_path = prune_path_collinear(path, grid_tolerance_g)
         pruned_path = prune_path_bresenham(grid, path)
-        global grid_path_g
-        grid_path_g = path
-        global grid_pruned_path_g
-        grid_pruned_path_g = pruned_path
         
         # Convert path to waypoints
         waypoints = [[p[0] + north_offset, p[1] + east_offset, TARGET_ALTITUDE, 0] for p in pruned_path]
@@ -232,21 +213,4 @@ if __name__ == "__main__":
     time.sleep(1)
 
     drone.start()
-
-    # Stuff to draw the path plan on grid.
-    plt.imshow(grid_g, origin='lower')
-    # For the purposes of the visual the east coordinate lay along
-    # the x-axis and the north coordinates long the y-axis.
-    plt.plot(grid_start_g[1], grid_start_g[0], 'x')
-    plt.plot(grid_goal_g[1], grid_goal_g[0], 'x')
-    p = np.array(grid_path_g)
-    plt.plot(p[:,1], p[:,0], 'r-')
-    pp = np.array(grid_pruned_path_g)
-    plt.plot(pp[:,1], pp[:,0], 'go')
-    plt.xlabel('EAST')
-    plt.ylabel('NORTH')
-#    plt.title('A* path pruned with Collinearity')
-    plt.title('A* path pruned with Bresenham')
-    plt.grid()
-    plt.show()
 
