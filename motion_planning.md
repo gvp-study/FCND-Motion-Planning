@@ -274,7 +274,7 @@ for i, w in enumerate(waypoints):
 The movie of the drone tracking the computed path is shown below.
 
 <video controls width="600">
-  <source src="Docs/astar_diag_raytrace.mp4" type="video/quicktime">
+  <source src="Docs/astar_diag_raytrace_v0.1.0.mp4" type="video/quicktime">
   Your browser does not support the video tag.
 </video>
 
