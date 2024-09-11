@@ -233,7 +233,7 @@ if __name__ == "__main__":
 
     drone.start()
 
-    print(grid_g, grid_start_g, grid_goal_g)
+    # Stuff to draw the path plan on grid.
     plt.imshow(grid_g, origin='lower')
     # For the purposes of the visual the east coordinate lay along
     # the x-axis and the north coordinates long the y-axis.
