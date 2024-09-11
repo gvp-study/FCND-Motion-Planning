@@ -139,14 +139,15 @@ class MotionPlanning(Drone):
 
         # TODO: set home position to (lon0, lat0, 0)
         print('Set global home position from file ', lon0, lat0)
-        self.set_home_position(lon0, lat0, 0.0)
+        self.set_home_position(lon0, lat0, TARGET_ALTITUDE)
 
         # TODO: retrieve current global position
-        print('global current position {}'.format(self.global_position))
+        start_LLA = self.global_position
+        print('global current position {}'.format(start_LLA))
 
         # TODO: convert to current local position using global_to_local()
-        local_home_NED = global_to_local(self.global_position, self.global_home)
-        print('local_home NED ', local_home_NED)
+        local_start_NED = global_to_local(start_LLA, self.global_home)
+        print('local_home NED ', local_start_NED)
         print('global home {0}, position {1}, local position {2}'.format(self.global_home, self.global_position, self.local_position))
 
         # Read in obstacle map
@@ -157,16 +158,16 @@ class MotionPlanning(Drone):
         print("North offset = {0}, East offset = {1}".format(north_offset, east_offset))
         # Define starting point on the grid (this is just grid center)
         # TODO: convert start position to current position rather than map center
-        grid_start = (int(-north_offset + local_home_NED[0]), int(-east_offset + local_home_NED[1]))
+        grid_start = (int(-north_offset + local_start_NED[0]), int(-east_offset + local_start_NED[1]))
 
         # Set goal as some arbitrary position on the grid
         # TODO: adapt to set goal as latitude / longitude position and convert
-        goal_lat_lon_alt = (-122.39343735,   37.79051296,    TARGET_ALTITUDE)
+        goal_LLA = (-122.39343735,   37.79051296,    TARGET_ALTITUDE)
  
-        local_goal = global_to_local(goal_lat_lon_alt, self.global_home)
+        local_goal_NED = global_to_local(goal_LLA, self.global_home)
 
-        grid_goal = (int(-north_offset + local_goal[0]), int(-east_offset + local_goal[1]))
-        print('local_goal NED ', local_goal, goal_lat_lon_alt, ' grid goal ', grid_goal)
+        grid_goal = (int(-north_offset + local_goal_NED[0]), int(-east_offset + local_goal_NED[1]))
+        print('local_goal_NED ', local_goal_NED, goal_LLA, ' grid goal ', grid_goal)
 
         global grid_g
         global grid_goal_g
