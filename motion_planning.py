@@ -14,8 +14,6 @@ from udacidrone.connection import MavlinkConnection
 from udacidrone.messaging import MsgID
 from udacidrone.frame_utils import global_to_local, local_to_global
 
-plt.rcParams["figure.figsize"] = [12, 12]
-
 
 class States(Enum):
     MANUAL = auto()
@@ -170,7 +168,7 @@ class MotionPlanning(Drone):
 
         # TODO: prune path to minimize number of waypoints
         # TODO (if you're feeling ambitious): Try a different approach altogether!
-#        pruned_path = prune_path_collinear(path, grid_tolerance_g)
+#        pruned_path = prune_path_collinear(path, 1.0)
         pruned_path = prune_path_bresenham(grid, path)
         
         # Convert path to waypoints
