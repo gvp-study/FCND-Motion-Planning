@@ -104,16 +104,21 @@ if __name__ == "__main__":
     plt.imshow(grid, origin='lower')
     # For the purposes of the visual the east coordinate lay along
     # the x-axis and the north coordinates long the y-axis.
-    plt.plot(grid_start[1], grid_start[0], 'x')
-    plt.plot(grid_goal[1], grid_goal[0], 'x')
+    #plt.plot(grid_start[1], grid_start[0], 'wx', s=10)
+    #plt.plot(grid_goal[1], grid_goal[0], 'gx', s=20)
+    plt.scatter([grid_start[1]], [grid_start[0]], s=[100])
+    plt.scatter([grid_goal[1]], [grid_goal[0]], s=[100])
+    '''
     p = np.array(grid_path)
     plt.plot(p[:,1], p[:,0], 'r-')
     pp = np.array(grid_pruned_path)
     plt.plot(pp[:,1], pp[:,0], 'go')
+    '''
     plt.xlabel('EAST')
     plt.ylabel('NORTH')
 #    plt.title('A* path pruned with Collinearity')
-    plt.title('A* path pruned with Bresenham')
+#    plt.title('A* path pruned with Bresenham')
+    plt.title('Occupancy Grid with Start and Goal')
     plt.grid()
     plt.show()
 

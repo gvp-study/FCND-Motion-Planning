@@ -26,6 +26,8 @@ Below I describe how I addressed each rubric point and where in my code each poi
 ### Explain the Starter Code
 
 #### 1. Explain the functionality of what's provided in `motion_planning.py` and `planning_utils.py`
+I completed the TODO portions in the two main python files motion_planning.py and planning_utils.py that is needed to complete this project. I generated a arbitary goal position in LLA coordinates and converted the goal and start positions to NED coordinates. I then converted these positions to start and goal grid points. I was then able to use the A* algorithm to plan a path to the goal. After the grid path is computed, I pruned the path to waypoints using the ray tracing collision check method. Once the waypoints are obtained I used them to fly the drone in the simulator from its start to the goal.
+
 And here's a screenshot of the drone following the planned path through the waypoints from the start to the goal in the environment.
 ![Top Down View](./Docs/drone-path-screenshot.png)
 
@@ -82,9 +84,9 @@ grid, north_offset, east_offset = create_grid(data, TARGET_ALTITUDE, SAFETY_DIST
 print("North offset = {0}, East offset = {1}".format(north_offset, east_offset))
 ```
 
-The resulting grid (1000x1000) with the yellow indicating occupied cells and brown indicating free cells is shown below. 
+The resulting grid (1000x1000) with the yellow indicating occupied cells and brown indicating free cells is shown below. Blue dot indicates the start cell and the red dot indicates the goal cell.
 
-![AStar-Manhattan-Collinear](/Users/gvp/Documents/GitHub/FCND-Motion-Planning/Docs/AStar-Manhattan-Collinear.png)
+![AStar-Manhattan-Collinear](/Users/gvp/Documents/GitHub/FCND-Motion-Planning/Docs/OccupancyGrid-Start-Goal.png)
 
 #### 3. Set grid start position from local position
 
@@ -114,7 +116,7 @@ grid_goal = (int(-north_offset + local_goal[0]), int(-east_offset + local_goal[1
 ```
 
 #### 5. Modify A* to include diagonal motion (or replace A* altogether)
-In order to search the grid more completely, the Action class was modified as shown below to add 4 additional diagonal moves in additional to the existing 4 standard cardinal directions. 
+In order to search the grid more completely, the Action class was modified as shown below to add four additional diagonal moves in additional to the existing four standard cardinal directions. 
 
 In addition the valid_action function was changed to incorporate the additional four actions as shown below. 	
 
@@ -181,11 +183,11 @@ The modified a_start search function was used to compute the path between the lo
 
 #### 6. Cull waypoints 
 
-The raw set of path points obtained from a_star is a set of connected cells from the start cell to the goal cell. These path points will number in the hundreds and are too fine for a drone to follow. These path points are then pruned such that only the start, end and important waypoints are included.
+The raw set of path points obtained from a_star is a set of connected cells from the start cell to the goal cell. These path points will number in the hundreds and are too close for a drone to follow dynamically. These path points are then pruned such that only the start, end and important waypoints are included.
 
 ##### Prune using Collinearity
 
-The path can be pruned into a significantly smaller set of waypoints using collinearity tests on the points.  The prune_path_collinear function takes the path and a tolerance value to eliminate all points which are collinear. The result is shown below.
+The path can be pruned into a significantly smaller set of waypoints using collinearity tests on the points.  The prune_path_collinear function takes the path and a tolerance value to eliminate all points which are collinear with a epsilon of 1.0m. The result is shown below.
 
 ```python
 def prune_path_collinear(path, epsilon=1e-6):
@@ -216,7 +218,7 @@ def prune_path_collinear(path, epsilon=1e-6):
 
 ##### Prune using RayTracing
 
-I experimented with another pruning function using ray tracing using the Bresenham algorithm on the same path points. The result was a significant reduction in waypoints from the previous prune_path_collinearity function. The prune_path_bresenham is shown below and the resulting path with green waypoints is shown below.
+I implemented another pruning function using ray tracing using the Bresenham algorithm on the same path points. The result was a significant reduction in waypoints from the previous prune_path_collinearity function. The prune_path_bresenham is shown below and the resulting path with green waypoints is shown below.
 
 ```python
 def prune_path_bresenham(grid, path):
