@@ -118,7 +118,7 @@ grid_goal = (int(-north_offset + local_goal[0]), int(-east_offset + local_goal[1
 #### 5. Modify A* to include diagonal motion (or replace A* altogether)
 In order to search the grid more completely, the Action class was modified as shown below to add four additional diagonal moves in additional to the existing four standard cardinal directions. 
 
-In addition the valid_action function was changed to incorporate the additional four actions as shown below. 	
+In addition the valid_action function was changed to incorporate the additional four actions as shown below. 
 
 ```python
 class Action(Enum):
