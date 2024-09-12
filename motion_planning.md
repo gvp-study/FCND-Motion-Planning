@@ -86,7 +86,7 @@ print("North offset = {0}, East offset = {1}".format(north_offset, east_offset))
 
 The resulting grid (1000x1000) with the yellow indicating occupied cells and brown indicating free cells is shown below. Blue dot indicates the start cell and the red dot indicates the goal cell.
 
-![AStar-Manhattan-Collinear](/Users/gvp/Documents/GitHub/FCND-Motion-Planning/Docs/OccupancyGrid-Start-Goal.png)
+![AStar-Manhattan-Collinear](Docs/OccupancyGrid-Start-Goal.png)
 
 #### 3. Set grid start position from local position
 
