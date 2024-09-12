@@ -214,7 +214,7 @@ def prune_path_collinear(path, epsilon=1e-6):
       return pruned_path	
 ```
 
-![AStar-Manhattan-Collinear](/Users/gvp/Documents/GitHub/FCND-Motion-Planning/Docs/AStar-Manhattan-Collinear.png)
+![AStar-Manhattan-Collinear](Docs/AStar-Manhattan-Collinear.png)
 
 ##### Prune using RayTracing
 
