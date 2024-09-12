@@ -276,11 +276,12 @@ I completed the TODO portions in the two files motion_planning.py and planning_u
 The movie of the drone tracking the computed path through the waypoints is in Docs/astar_diag_raytrace_v0.1.0.mp4 is shown below.
 
 <video controls width="600">
-  <source src="Docs/astar_diag_raytrace_v0.1.0.mp4" type="video/quicktime">
+  <source src="./Docs/astar_diag_raytrace_v0_1_0.mp4" type="video/mp4">
   Your browser does not support the video tag.
-</video>
+</video> 
 
-#### 
+
+
 
 ### Double check that you've met specifications for each of the [rubric](https://review.udacity.com/#!/rubrics/1534/view) points.
 
