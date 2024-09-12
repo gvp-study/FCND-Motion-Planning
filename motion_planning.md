@@ -183,7 +183,7 @@ The modified a_start search function was used to compute the path between the lo
 
 #### 6. Cull waypoints 
 
-The raw set of path points obtained from a_star is a set of connected cells from the start cell to the goal cell. These path points will number in the hundreds and are too close for a drone to follow dynamically. These path points are then pruned such that only the start, end and important waypoints are included.
+The raw set of path points obtained from a_star is a set of connected cells from the start cell to the goal cell. These path points will number in the hundreds and are too close for a drone to follow dynamically. These path points need to be pruned such that only the start, end and important waypoints are included.
 
 ##### Prune using Collinearity
 
@@ -271,7 +271,7 @@ for i, w in enumerate(waypoints):
 ### Execute the flight
 
 #### 1. Does it work?
-The movie of the drone tracking the computed path is shown below.
+The movie of the drone tracking the computed path through the waypoints is shown below.
 
 <video controls width="600">
   <source src="Docs/astar_diag_raytrace_v0.1.0.mp4" type="video/quicktime">
