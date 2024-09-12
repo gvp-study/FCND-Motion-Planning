@@ -26,10 +26,10 @@ Below I describe how I addressed each rubric point and where in my code each poi
 ### Explain the Starter Code
 
 #### 1. Explain the functionality of what's provided in `motion_planning.py` and `planning_utils.py`
-I completed the TODO portions in the two main python files motion_planning.py and planning_utils.py that is needed to complete this project. I generated a arbitary goal position in LLA coordinates and converted the goal and start positions to NED coordinates. I then converted these positions to start and goal grid points. I was then able to use the A* algorithm to plan a path to the goal. After the grid path is computed, I pruned the path to waypoints using the ray tracing collision check method. Once the waypoints are obtained I used them to fly the drone in the simulator from its start to the goal.
+The starter code provides the basic functionality that allows the program to connect to the Udacity drone simulator. This code connects to the Udacity drone simulator, arms the drone for automatic control. It then reads in the colliders.csv to compute the occupancy grid. It then uses the drones current position in the map to find a goal position 10m in the Northern and 10m in the Eastern  direction. It then uses the a_star function in planning_utils.py to compute the path to the goal. The resulting path is fed as waypoints to the drone. Once the waypoints are obtained, the drone flies through the waypoints to the goal.
 
-And here's a screenshot of the drone following the planned path through the waypoints from the start to the goal in the environment.
-![Top Down View](./Docs/drone-path-screenshot.png)
+The screenshot of the drone following the planned path through the waypoints from the start to the goal in the environment is shown below.
+![Top Down View](./Docs/Drone-Original-Path.png)
 
 ### Implementing Your Path Planning Algorithm
 
@@ -271,6 +271,8 @@ for i, w in enumerate(waypoints):
 ### Execute the flight
 
 #### 1. Does it work?
+I completed the TODO portions in the two files motion_planning.py and planning_utils.py that was needed to complete this project. I generated an arbitary goal position in LLA coordinates and converted the goal and start positions to NED coordinates. I then converted these positions in NED coordinates to start and goal grid points. I was then able to use the a_star function to plan a path to the goal. I changed the actions from 4 directions to 8 to include the diagonal moves. After the grid path is computed, I pruned the path to waypoints using the ray tracing collision check method. Once the waypoints are obtained I used them to fly the drone in the simulator from its start to the goal. 
+
 The movie of the drone tracking the computed path through the waypoints is in Docs/astar_diag_raytrace_v0.1.0.mp4 is shown below.
 
 <video controls width="600">
