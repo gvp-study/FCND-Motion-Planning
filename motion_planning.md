@@ -271,7 +271,7 @@ for i, w in enumerate(waypoints):
 ### Execute the flight
 
 #### 1. Does it work?
-The movie of the drone tracking the computed path through the waypoints is shown below.
+The movie of the drone tracking the computed path through the waypoints is in Docs/astar_diag_raytrace_v0.1.0.mp4 is shown below.
 
 <video controls width="600">
   <source src="Docs/astar_diag_raytrace_v0.1.0.mp4" type="video/quicktime">
